@@ -6,6 +6,7 @@ class Subscriber(models.Model):
 
 
 class CallRecord(models.Model):
-    destination_number = models.IntegerField
-    start_time = models.DateTimeField
-    end_time = models.DateTimeField
+    destination_number = models.IntegerField()
+    start_time = models.DateTimeField(null=True)
+    end_time = models.DateTimeField(null=True)
+    subscriber = models.ForeignKey(Subscriber, on_delete=models.CASCADE)
