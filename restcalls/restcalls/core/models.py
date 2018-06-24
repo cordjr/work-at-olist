@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 
 
@@ -8,6 +9,11 @@ class CallRecord(models.Model):
     start_time = models.DateTimeField(null=True)
     end_time = models.DateTimeField(null=True)
     minute_price = models.DecimalField(max_digits=20, decimal_places=2, null=True)
+
+    def clean(self):
+        if self.start_time >= self.end_time:
+            raise ValidationError({'start_time': "Start time must not be after end_time",
+                                   'end_time': 'End time must not be before start time'})
 
     @property
     def total_price(self):
@@ -22,6 +28,11 @@ class CallRecord(models.Model):
 class PricePolice(models.Model):
     start = models.DateField(default=None)
     end = models.DateField(default=None)
+
+    def clean(self):
+        if self.start >= self.end:
+            raise ValidationError({'start': "Start time must not be after end_time",
+                                   'end': 'End time must not be before start time'})
 
 
 class PriceRule(models.Model):
