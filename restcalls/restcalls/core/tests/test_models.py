@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase
 
 from restcalls.core.models import CallRecord, PricePolice
+from unittest import skip
 
 
 # Create your tests here.
@@ -33,12 +34,15 @@ class CallRecordTest(TestCase):
                                          minute_price=0.09
                                          )
 
+    @skip
     def test_record_insertion_with_valid_data(self):
         record = self.create_valid_record_call()
         self.assertTrue(record.call_id)
         record_retrieved = CallRecord.objects.get(call_id=record.call_id)
-        self.assertEqual(record, record_retrieved, "Record retrieved must be equals to record created")
+        self.assertEqual(record, record_retrieved,
+                         "Record retrieved must be equals to record created")
 
+    @skip
     def test_should_throw_an_errror_when_call_id_is_not_filled(self):
         try:
             record = self.create_a_record_call_without_call_id()
