@@ -1,9 +1,10 @@
 import json
+from unittest import skip
 
 from django.test import TestCase, Client
 from django.urls import reverse
 from rest_framework import status
-from unittest import skip
+
 
 class StartCallRecord(TestCase):
 
@@ -27,12 +28,14 @@ class StartCallRecord(TestCase):
                 "timestamp": "2017-06-06T10:11:02.900Z",
                 "call_id": 999
             }
+
         @skip
         def test_shoud_get_201_status_code_when_valid_start_call_record_is_sent(self):
             response = self.cli.post(reverse('post_record_call'),
                                      data=json.dump(self.valid_payload()),
                                      content_type="application/json")
             self.assertEqual(resonse.status, status.HTTP_201_CREATED)
+
         @skip
         def test_shoud_receive_valtest_shoud_get_400_code_when_invalid_record_is_sent(self):
             response = self.cli.post(reverse('post_record_call'),
