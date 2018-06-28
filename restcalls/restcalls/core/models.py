@@ -4,7 +4,7 @@ from django.db import models
 
 class CallRecord(models.Model):
     call_id = models.IntegerField(primary_key=True)
-    source_number = models.IntegerField(db_index=True)
+    source_number = models.IntegerField(db_index=True, null=True)
     destination_number = models.IntegerField()
     start_time = models.DateTimeField(null=True)
     end_time = models.DateTimeField(null=True)
