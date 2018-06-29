@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, date
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
-from restcalls.core.models import CallRecord, PricePolice
+from restcalls.core.models import CallRecord, PricePolicy
 from unittest import skip
 
 
@@ -78,7 +78,7 @@ class PricePoliceTest(TestCase):
         sample_date = date.today()
         start_date = sample_date - timedelta(days=60)
         end_date = sample_date
-        price_police = PricePolice.objects.create(start=start_date,
+        price_police = PricePolicy.objects.create(start=start_date,
                                                   end=end_date)
         return price_police
 

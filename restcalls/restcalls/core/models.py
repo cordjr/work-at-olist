@@ -25,9 +25,10 @@ class CallRecord(models.Model):
         return delta.seconds // 60
 
 
-class PricePolice(models.Model):
+class PricePolicy(models.Model):
     start = models.DateField(default=None)
     end = models.DateField(default=None)
+    standing_rate = models.DecimalField(max_digits=20, decimal_places=2)
 
     def clean(self):
         if self.start >= self.end:
@@ -38,7 +39,7 @@ class PricePolice(models.Model):
 class PriceRule(models.Model):
     TYPES = (('S', 'STANDARD'),
              ('R', 'REDUCED'))
-    policy = models.ForeignKey(PricePolice, on_delete=models.CASCADE)
+    policy = models.ForeignKey(PricePolicy, on_delete=models.CASCADE)
     start_time = models.TimeField
     end_time = models.TimeField
     type = models.CharField(max_length=1, choices=TYPES)
