@@ -1,10 +1,11 @@
-from datetime import datetime, timedelta, date
+from datetime import datetime
+from datetime import timedelta, date
+from decimal import Decimal
 
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
-from restcalls.core.models import CallRecord, PricePolicy
-from unittest import skip
+from restcalls.core.models import CallRecord, PricePolicy, PriceRule
 
 
 # Create your tests here.
@@ -31,10 +32,9 @@ class CallRecordTest(TestCase):
                                          destination_number=1334455664,
                                          start_time=start_time,
                                          end_time=end_time,
-                                         minute_price=0.09
+                                         minute_price=Decimal(0.09)
                                          )
 
-    @skip
     def test_record_insertion_with_valid_data(self):
         record = self.create_valid_record_call()
         self.assertTrue(record.call_id)
@@ -42,7 +42,6 @@ class CallRecordTest(TestCase):
         self.assertEqual(record, record_retrieved,
                          "Record retrieved must be equals to record created")
 
-    @skip
     def test_should_throw_an_errror_when_call_id_is_not_filled(self):
         try:
             record = self.create_a_record_call_without_call_id()
@@ -73,26 +72,49 @@ class CallRecordTest(TestCase):
         self.assertEqual(record.total_minutes, 2)
 
 
-class PricePoliceTest(TestCase):
-    def create_police_test(self):
+class PricePolicyTest(TestCase):
+    def create_policy_test(self):
         sample_date = date.today()
         start_date = sample_date - timedelta(days=60)
         end_date = sample_date
         price_police = PricePolicy.objects.create(start=start_date,
-                                                  end=end_date)
+                                                  end=end_date,
+                                                  standing_rate=Decimal(0.16))
+
         return price_police
 
     def test_police_insertion_with_valid_data(self):
-        price_police = self.create_police_test()
+        price_police = self.create_policy_test()
         self.assertIsNotNone(price_police.id)
 
-    def test_should_throw_validation_erros_when_start_time_is_after_end_date(self):
-        poclicy = self.create_police_test()
-        poclicy.start = date.today() + timedelta(days=20)
-        try:
-            poclicy.full_clean()
-        except ValidationError as ex:
-            self.assertIsNotNone(ex)
-            return
+    def price_policy_with_rules(self):
+        policy = PricePolicy.objects.create(standing_rate=Decimal('0.18'),
+                                            start=datetime.strptime("2018-05-01", "%Y-%m-%d"),
+                                            end=datetime.strptime("2018-09-01", "%Y-%m-%d"))
+        PriceRule.objects.create(policy=policy,
+                                 start_time=datetime.strptime("06:00", "%H:%M"),
+                                 end_time=datetime.strptime("22:00", "%H:%M"),
+                                 value=Decimal('0.09'),
+                                 type='S')
+        PriceRule.objects.create(policy=policy,
+                                 start_time=datetime.strptime("22:0", "%H:%M"),
+                                 end_time=datetime.strptime("06:00", "%H:%M"),
+                                 value=Decimal('0.04'),
+                                 type='R')
+        return policy
 
-        self.fail("a validation error should be throw")
+    def test_calculate_price_when_start_and_end_is_only_in_standard_price_rule(self):
+        policy = self.price_policy_with_rules()
+        start = datetime.strptime('2018-06-01 18:00:00', '%Y-%m-%d %H:%M:%S')
+        end = datetime.strptime('2018-06-01 18:15:00', '%Y-%m-%d %H:%M:%S')
+        price = policy.calculate_price(start, end)
+        self.assertEqual(price, Decimal('1.53'))
+
+    def test_calculate_call_price_when_start_and_end_is_between_2_price_rules(self):
+        policy = self.price_policy_with_rules()
+
+        start = datetime.strptime('2018-06-01 21:59:00', '%Y-%m-%d %H:%M:%S')
+        end = datetime.strptime('2018-06-01 22:05:00', '%Y-%m-%d %H:%M:%S')
+
+        price = policy.calculate_price(start, end)
+        self.assertEqual(price, Decimal('0.47'))

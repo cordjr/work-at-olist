@@ -1,5 +1,10 @@
+from datetime import datetime, timedelta
+from decimal import Decimal, ROUND_HALF_DOWN, Context
+
 from django.core.exceptions import ValidationError
 from django.db import models
+
+
 
 
 class CallRecord(models.Model):
@@ -30,6 +35,10 @@ class PricePolicy(models.Model):
     end = models.DateField(default=None)
     standing_rate = models.DecimalField(max_digits=20, decimal_places=2)
 
+    def calculate_price(self, call_start, call_end):
+
+        return self.standing_rate + sum([p.calculate_price(call_start, call_end) for p in self.pricerule_set.all()])
+
 
 class PriceRule(models.Model):
     TYPES = (('S', 'STANDARD'),
@@ -39,3 +48,26 @@ class PriceRule(models.Model):
     end_time = models.TimeField()
     type = models.CharField(max_length=1, choices=TYPES)
     value = models.DecimalField(max_digits=20, decimal_places=2)
+
+    def calculate_price(self, call_start, call_end):
+        if call_end < call_start:
+            raise ValidationError("call end can't be before  call start")
+        ctx = Context(rounding=ROUND_HALF_DOWN, prec=2)
+
+        begin_range = datetime.combine(call_start.date(), self.start_time)
+        end_range = datetime.combine(call_end.date(), self.end_time)
+        if end_range < begin_range:
+            end_range += timedelta(days=1)
+
+        if begin_range <= call_start <= end_range and call_end <= end_range:
+            delta = call_end - call_start
+        elif begin_range <= call_start <= end_range and not (call_end <= end_range):
+            delta = end_range - call_start
+        elif call_start < begin_range <= call_end <= end_range:
+            delta = call_end - begin_range
+        else:
+            return 0
+        value = round(self.value, 2)
+        minutes = Decimal(delta.seconds // 60, context=ctx)
+
+        return value * minutes
