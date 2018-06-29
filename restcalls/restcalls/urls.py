@@ -15,9 +15,7 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 
-from restcalls.core import views
-
 urlpatterns = [
     # path('admin/', admin.site.urls),
-    url(r'api/v1/calls', views.post_record_call, name='post_record_call')
+    url('^', include('restcalls.core.urls'))
 ]
