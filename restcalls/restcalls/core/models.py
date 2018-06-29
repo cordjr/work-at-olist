@@ -5,7 +5,7 @@ from django.db import models
 class CallRecord(models.Model):
     call_id = models.IntegerField(primary_key=True)
     source_number = models.IntegerField(db_index=True, null=True)
-    destination_number = models.IntegerField()
+    destination_number = models.IntegerField(null=True)
     start_time = models.DateTimeField(null=True)
     end_time = models.DateTimeField(null=True)
     minute_price = models.DecimalField(max_digits=20, decimal_places=2, null=True)
@@ -30,17 +30,12 @@ class PricePolicy(models.Model):
     end = models.DateField(default=None)
     standing_rate = models.DecimalField(max_digits=20, decimal_places=2)
 
-    def clean(self):
-        if self.start >= self.end:
-            raise ValidationError({'start': "Start time must not be after end_time",
-                                   'end': 'End time must not be before start time'})
-
 
 class PriceRule(models.Model):
     TYPES = (('S', 'STANDARD'),
              ('R', 'REDUCED'))
     policy = models.ForeignKey(PricePolicy, on_delete=models.CASCADE)
-    start_time = models.TimeField
-    end_time = models.TimeField
+    start_time = models.TimeField()
+    end_time = models.TimeField()
     type = models.CharField(max_length=1, choices=TYPES)
     value = models.DecimalField(max_digits=20, decimal_places=2)
