@@ -23,6 +23,14 @@ START_CALL_PAYLOAD_WITHOUT_DESTINATION_ATTRIBUTE = {
     "source": 5598984182608,
 }
 
+START_CALL_PAYLOAD_WITHOUT_DESTINATION_AND_SOURCE_ATTRIBUTE = {
+    "id": 456,
+    "type": "start",
+    "timestamp": "2017-06-06T10:11:02.900Z",
+    "call_id": 999,
+
+}
+
 START_CALL_PAYLOAD_WITH_NONE_SOURCE = {
     "id": 456,
     "type": "start",

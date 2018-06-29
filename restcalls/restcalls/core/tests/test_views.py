@@ -1,44 +1,58 @@
 import json
-from unittest import skip
 
-from django.test import TestCase, Client
 from django.urls import reverse
 from rest_framework import status
+from rest_framework.test import APITestCase
+
+from restcalls.core.tests.payloads import *
 
 
-class StartCallRecord(TestCase):
+class StartCallRecord(APITestCase):
 
-    def setUp(self):
-        self.cli = Client()
+    def tearDown(self):
+        self.client.logout()
 
-    def valid_payload(self):
-        return {
-            "id": 456,
-            "type": "start",
-            "timestamp": "2017-06-06T10:11:02.900Z",
-            "call_id": 999,
-            "source": 5598984182608,
-            "destination": 559999874562
-        }
+    def test_get_201_status_code_when_valid_start_call_record_is_sent(self):
+        response = self.client.post(reverse('post_record_call'),
+                                    data=json.dumps(VALID_START_CALL_PAYLOAD),
+                                    content_type='application/json'
+                                    )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        def invalid_payload(self):
-            return {
-                "id": 455,
-                "type": "",
-                "timestamp": "2017-06-06T10:11:02.900Z",
-                "call_id": 999
-            }
+    def test_get_400_code_when_invalid_record_is_sent(self):
+        response = self.client.post(reverse('post_record_call'),
+                                    data=json.dumps({}),
+                                    content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        @skip
-        def test_shoud_get_201_status_code_when_valid_start_call_record_is_sent(self):
-            response = self.cli.post(reverse('post_record_call'),
-                                     data=json.dump(self.valid_payload()),
-                                     content_type="application/json")
-            self.assertEqual(resonse.status, status.HTTP_201_CREATED)
+    def test_get_error_400_and_list_required_fields_when_empty_record_is_sent(self):
+        response = self.client.post(reverse('post_record_call'),
+                                    data=json.dumps({}),
+                                    content_type="application/json")
+        fields = ['type', 'timestamp', 'call_id']
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        for field in fields:
+            self.assertIn(field, response.json())
 
-        @skip
-        def test_shoud_receive_valtest_shoud_get_400_code_when_invalid_record_is_sent(self):
-            response = self.cli.post(reverse('post_record_call'),
-                                     data=json.dump(self.invalid_payload()),
-                                     content_type="application/json")
-            self.assertEqual(resonse.status, status.HTTP_400_BAD_REQUEST)
+    def test_get_error_400_and_list_source_field_when_its_not_present_in_start_call_payload(self):
+        response = self.client.post(reverse('post_record_call'),
+                                    data=json.dumps(START_CALL_PAYLOAD_WITHOUT_SOURCE_ATTRIBUTE),
+                                    content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('source', response.json())
+
+    def test_get_error_400_and_list_destination_field_when_its_not_present_in_start_call_payload(self):
+        response = self.client.post(reverse('post_record_call'),
+                                    data=json.dumps(START_CALL_PAYLOAD_WITHOUT_DESTINATION_ATTRIBUTE),
+                                    content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('destination', response.json())
+
+    def test_get_error_400_and_list_destination_and_source_fields_when_its_not_present_in_start_call_payload(self):
+        response = self.client.post(reverse('post_record_call'),
+                                    data=json.dumps(START_CALL_PAYLOAD_WITHOUT_DESTINATION_AND_SOURCE_ATTRIBUTE),
+                                    content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('destination', response.json())
+        self.assertIn('source', response.json())
+

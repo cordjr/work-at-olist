@@ -42,13 +42,9 @@ INSTALLED_APPS = [
 
 ]
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAthenticated',),
-    'DEFAULT_THROTTLE_CLASSES': ('rest_framework.throttling.UserRateThrottle',
-                                 'rest_framework.throttling.UserAnonThrottle',),
-    'DEFAULT_THROTTLE_RATES': {
-        'user': '60/minute',
-        'anon': '30/minute',
-    }
+    'DEFAULT_AUTHENTICATION_CLASSES': [],
+    'DEFAULT_PERMISSION_CLASSES':[]
+
 
 }
 
