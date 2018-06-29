@@ -1,24 +1,28 @@
 from rest_framework import serializers
 
-from restcalls.core.models import CallRecord
 
+class CallRecordSerializer(serializers.Serializer):
 
-class CallRecordSerializer(serializers.ModelSerializer):
-    source_number = serializers.IntegerField(source='source', required=False)
-    destination_number = serializers.IntegerField(source='destination', required=False)
-    timestamp = serializers.DateTimeField(write_only=True)
-
-    class Meta:
-        model = CallRecord
-        fields = ('call_id', 'source_number', 'destination_number', 'type')
+    id = serializers.IntegerField(read_only=True)
+    call_id = serializers.IntegerField()
+    source = serializers.IntegerField(required=False)
+    destination = serializers.IntegerField(required=False)
+    timestamp = serializers.DateTimeField(required=True)
+    type = serializers.CharField(required=True)
 
     def validate(self, data):
         if data['type'] == 'start':
-            if not data.get('source') or not data.get('destination'):
+            if 'source' not in data:
+                raise serializers.ValidationError({'source': 'source should be present in start call record'})
+
+            if 'destination' not in data:
+                raise serializers.ValidationError({'destination': 'destination should be present in start call record'})
+
+            if not data.get('source'):
+                raise serializers.ValidationError({'source': 'source must contains values in start call record'})
+
+            if not data.get('destination'):
                 raise serializers.ValidationError(
-                    "Source and Destinations are reuired for CallRecords with type 'start'")
+                    {'destination': 'destination must contains values in start call record'})
 
         return data
-
-    def create(self, validated_data):
-        pass
