@@ -118,3 +118,95 @@ class PricePolicyTest(TestCase):
 
         price = policy.calculate_price(start, end)
         self.assertEqual(price, Decimal('0.47'))
+
+
+class PriceRuleTest(TestCase):
+
+    def test_rule_insertion_with_valid_data(self):
+        policy = PricePolicy.objects.create(standing_rate=Decimal('0.18'),
+                                            start=datetime.strptime("2018-05-01", "%Y-%m-%d"),
+                                            end=datetime.strptime("2018-09-01", "%Y-%m-%d"))
+        rule = PriceRule.objects.create(policy=policy,
+                                        start_time=datetime.strptime("06:00", "%H:%M"),
+                                        end_time=datetime.strptime("22:00", "%H:%M"),
+                                        value=Decimal('0.09'),
+                                        type='S')
+
+        self.assertIsNotNone(rule.id)
+
+    def test_rule_insertion_with_no_policy(self):
+        try:
+            rule = PriceRule.objects.create(policy=None,
+                                            start_time=datetime.strptime("06:00", "%H:%M"),
+                                            end_time=datetime.strptime("22:00", "%H:%M"),
+                                            value=Decimal('0.09'),
+                                            type='S')
+        except ValidationError as ex:
+            self.assertIn('policy', ex.error_dict)
+            return
+        self.fail('A validation error shuld be thrown')
+
+    def test_rule_insertion_with_no_start_time(self):
+        try:
+            policy = PricePolicy.objects.create(standing_rate=Decimal('0.18'),
+                                                start=datetime.strptime("2018-05-01", "%Y-%m-%d"),
+                                                end=datetime.strptime("2018-09-01", "%Y-%m-%d"))
+            PriceRule.objects.create(policy=policy,
+                                     start_time=None,
+                                     end_time=datetime.strptime("22:00", "%H:%M"),
+                                     value=Decimal('0.09'),
+                                     type='S')
+        except ValidationError as ex:
+            self.assertIn('start_time', ex.error_dict)
+            return
+
+        self.fail('A validation error shuld be thrown')
+
+    def test_rule_insertion_with_no_end_time(self):
+        try:
+            policy = PricePolicy.objects.create(standing_rate=Decimal('0.18'),
+                                                start=datetime.strptime("2018-05-01", "%Y-%m-%d"),
+                                                end=datetime.strptime("2018-09-01", "%Y-%m-%d"))
+            PriceRule.objects.create(policy=policy,
+                                     start_time=datetime.strptime("06:00", "%H:%M"),
+                                     end_time=None,
+                                     value=Decimal('0.09'),
+                                     type='S')
+        except ValidationError as ex:
+            self.assertIn('end_time', ex.error_dict)
+            return
+
+        self.fail('A validation error shuld be thrown')
+
+    def test_rule_insertion_with_no_value(self):
+        try:
+            policy = PricePolicy.objects.create(standing_rate=Decimal('0.18'),
+                                                start=datetime.strptime("2018-05-01", "%Y-%m-%d"),
+                                                end=datetime.strptime("2018-09-01", "%Y-%m-%d"))
+            PriceRule.objects.create(policy=policy,
+                                     start_time=datetime.strptime("06:00", "%H:%M"),
+                                     end_time=datetime.strptime("22:00", "%H:%M"),
+                                     value=None,
+                                     type='S')
+        except ValidationError as ex:
+            self.assertIn('value', ex.error_dict)
+            return
+
+        self.fail('A validation error shuld be thrown')
+
+    def test_rule_insertion_with_no_type(self):
+        try:
+            policy = PricePolicy.objects.create(standing_rate=Decimal('0.18'),
+                                                start=datetime.strptime("2018-05-01", "%Y-%m-%d"),
+                                                end=datetime.strptime("2018-09-01", "%Y-%m-%d"))
+            PriceRule.objects.create(policy=policy,
+                                     start_time=datetime.strptime("06:00", "%H:%M"),
+                                     end_time=datetime.strptime("22:00", "%H:%M"),
+                                     value=Decimal('0.09'),
+                                     type=None)
+        except ValidationError as ex:
+            self.assertIn('type', ex.error_dict)
+            return
+
+        self.fail('A validation error shuld be thrown')
+

@@ -26,8 +26,8 @@ def create_initial_price_policy(apps, schema_editor):
     )
     price_rule = PriceRule.objects.create(
         policy=price_policy,
-        start_time=datetime.strptime('22:00', '%H:%M'),
-        end_time=datetime.strptime('06:00', '%H:%M'),
+        start_time= datetime.strptime('06:00', '%H:%M'),
+        end_time=datetime.strptime('22:00', '%H:%M'),
         type='R',
         value=0.00
     )
