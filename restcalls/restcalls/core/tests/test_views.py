@@ -28,6 +28,7 @@ class StartCallRecord(APITestCase):
                                     content_type='application/json'
                                     )
         call_record = CallRecord.objects.get(call_id=VALID_START_CALL_PAYLOAD['call_id'])
+        self.assertIsNotNone(call_record.start_time)
         self.assertIsNotNone(call_record)
 
     def test_get_201_status_code_when_valid_end_call_record_is_sent(self):
@@ -38,6 +39,15 @@ class StartCallRecord(APITestCase):
                                     content_type='application/json'
                                     )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_end_record_call_is_persisted_for_valid_payload(self):
+        response = self.client.post(reverse('post_record_call'),
+                                    data=json.dumps(VALID_END_CALL_PAYLOAD),
+                                    content_type='application/json'
+                                    )
+        call_record = CallRecord.objects.get(call_id=VALID_END_CALL_PAYLOAD['call_id'])
+        self.assertIsNotNone(call_record.end_time)
+        self.assertIsNotNone(call_record)
 
     def test_get_400_code_when_invalid_record_is_sent(self):
         response = self.client.post(reverse('post_record_call'),
