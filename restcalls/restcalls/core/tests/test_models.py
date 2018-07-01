@@ -20,7 +20,7 @@ class CallRecordTest(TestCase):
                                          destination_number=1334455664,
                                          start_time=start_time,
                                          end_time=end_time,
-                                         minute_price=0.09
+
                                          )
 
     def create_a_record_call_without_call_id(self):
@@ -32,7 +32,7 @@ class CallRecordTest(TestCase):
                                          destination_number=1334455664,
                                          start_time=start_time,
                                          end_time=end_time,
-                                         minute_price=Decimal(0.09)
+
                                          )
 
     def test_record_insertion_with_valid_data(self):
@@ -47,7 +47,7 @@ class CallRecordTest(TestCase):
             record = self.create_a_record_call_without_call_id()
             record.clean_fields()
         except ValidationError as ex:
-            self.assertIn("call_id",ex.error_dict)
+            self.assertIn("call_id", ex.error_dict)
 
             return
         self.fail("An exception shuld be thrown")
@@ -62,10 +62,6 @@ class CallRecordTest(TestCase):
             return
 
         self.fail("a validation error should be thrown")
-
-    def test_total_price_should_be_calculated_precisely(self):
-        record = self.create_valid_record_call()
-        self.assertEqual(record.total_price, 0.18)
 
     def test_total_minutes_should_be_calculated_precisely(self):
         record = self.create_valid_record_call()
@@ -209,4 +205,3 @@ class PriceRuleTest(TestCase):
             return
 
         self.fail('A validation error shuld be thrown')
-

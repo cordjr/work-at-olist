@@ -13,16 +13,12 @@ class CallRecord(models.Model):
     destination_number = models.IntegerField(null=True)
     start_time = models.DateTimeField(null=True)
     end_time = models.DateTimeField(null=True)
-    minute_price = models.DecimalField(max_digits=20, decimal_places=2, null=True)
+    call_price = models.DecimalField(max_digits=20, decimal_places=2, null=True)
 
     def clean(self):
         if self.start_time >= self.end_time:
             raise ValidationError({'start_time': "Start time must not be after end_time",
                                    'end_time': 'End time must not be before start time'})
-
-    @property
-    def total_price(self):
-        return self.total_minutes * self.minute_price
 
     @property
     def total_minutes(self):
@@ -47,9 +43,6 @@ class PriceRule(models.Model):
     end_time = models.TimeField()
     type = models.CharField(max_length=1, choices=TYPES)
     value = models.DecimalField(max_digits=20, decimal_places=2)
-
-
-
 
     def save(self, force_insert=False, force_update=False, using=None,
              update_fields=None):
