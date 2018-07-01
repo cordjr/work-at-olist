@@ -49,7 +49,7 @@ class StartCallRecord(APITestCase):
         self.assertIsNotNone(call_record.end_time)
         self.assertIsNotNone(call_record)
 
-    def test_get_400_code_when_invalid_record_is_sent(self):
+    def test_get_400_code_when_empty_record_is_sent(self):
         response = self.client.post(reverse('post_record_call'),
                                     data=json.dumps({}),
                                     content_type="application/json")
