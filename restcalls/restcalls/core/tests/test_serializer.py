@@ -1,6 +1,10 @@
+from datetime import datetime, timedelta
+from decimal import Decimal
+
 from django.test import TestCase
 
-from restcalls.core.serializers import CallRecordSerializer
+from restcalls.core.models import CallRecord
+from restcalls.core.serializers import CallRecordSerializer, BillSerializer
 from restcalls.core.tests.payloads import *
 
 
@@ -48,4 +52,18 @@ class CallRecordSerializerTest(TestCase):
         self.assertTrue([error for error in serializer.errors if 'timestamp' in error])
 
 
+class BillSerializerTest(TestCase):
 
+    def test_should_serialize_call_record_according_to_bill_pattern(self):
+        call_record = CallRecord()
+        sample_date = datetime.now()
+        call_record.start_time = sample_date - timedelta(seconds=60 * 5)
+        call_record.end_time = sample_date
+        call_record.source_number = 99987456895
+        call_record.destination_number = 99987456894
+        call_record.call_price = Decimal('0.68')
+        serializer = BillSerializer(call_record)
+        data = serializer.data
+        self.assertIsNotNone(data)
+        for key in ('call_start_time', 'call_start_date', 'destination', 'call_duration', 'call_price'):
+            self.assertIn(key, data.keys())

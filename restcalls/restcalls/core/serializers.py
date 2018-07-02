@@ -1,5 +1,7 @@
 from rest_framework import serializers
 
+from restcalls.core.models import CallRecord
+
 
 class CallRecordSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
@@ -29,3 +31,30 @@ class CallRecordSerializer(serializers.Serializer):
                 errors)
 
         return data
+
+
+class BillSerializer(serializers.ModelSerializer):
+    destination = serializers.SerializerMethodField()
+    call_start_date = serializers.SerializerMethodField()
+    call_start_time = serializers.SerializerMethodField()
+    call_duration = serializers.SerializerMethodField()
+    call_price = serializers.SerializerMethodField()
+
+    def get_call_start_date(self, obj):
+        return obj.start_time.date()
+
+    def get_call_start_time(self, obj):
+        return obj.start_time.time()
+
+    def get_destination(self, obj):
+        return obj.destination_number
+
+    def get_call_duration(self, obj):
+        return obj.total_minutes
+
+    def get_call_price(self, obj):
+        return obj.call_price
+
+    class Meta:
+        model = CallRecord
+        fields = ('call_start_time', 'call_start_date', 'destination', 'call_duration', 'call_price')
