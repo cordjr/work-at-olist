@@ -16,6 +16,6 @@ Including another URLconf
 from django.conf.urls import url, include
 
 urlpatterns = [
-    # path('admin/', admin.site.urls),
+    #path('admin/', admin.site.urls),
     url('^', include('restcalls.core.urls'))
 ]
