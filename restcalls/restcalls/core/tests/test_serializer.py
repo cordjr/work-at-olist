@@ -57,7 +57,7 @@ class BillSerializerTest(TestCase):
     def test_should_serialize_call_record_according_to_bill_pattern(self):
         call_record = CallRecord()
         sample_date = datetime.now()
-        call_record.start_time = sample_date - timedelta(seconds=60 * 5)
+        call_record.start_time = sample_date - timedelta(seconds=60 * 5.5)
         call_record.end_time = sample_date
         call_record.source_number = 99987456895
         call_record.destination_number = 99987456894
@@ -67,3 +67,5 @@ class BillSerializerTest(TestCase):
         self.assertIsNotNone(data)
         for key in ('call_start_time', 'call_start_date', 'destination', 'call_duration', 'call_price'):
             self.assertIn(key, data.keys())
+
+        self.assertRegex(data['call_duration'], r'\d+h\d+m\d+s', "call duration should be like '0h2m1s'")

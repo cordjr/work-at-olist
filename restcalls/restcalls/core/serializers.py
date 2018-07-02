@@ -50,7 +50,24 @@ class BillSerializer(serializers.ModelSerializer):
         return obj.destination_number
 
     def get_call_duration(self, obj):
-        return obj.total_minutes
+
+        total_seconds = obj.time_delta.seconds
+        if not total_seconds:
+            return "0h0m0s"
+
+        periods = [
+            ('h', 60 * 60),
+            ('m', 60),
+            ('s', 1)
+        ]
+        strings = []
+        for period_name, period_seconds in periods:
+            if total_seconds >= period_seconds:
+                period_value, total_seconds = divmod(total_seconds, period_seconds)
+                strings.append("{}{}".format(period_value, period_name))
+            else:
+                strings.append("{}{}".format(0, period_name))
+        return "".join(strings)
 
     def get_call_price(self, obj):
         return obj.call_price

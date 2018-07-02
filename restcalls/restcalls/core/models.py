@@ -22,8 +22,11 @@ class CallRecord(models.Model):
 
     @property
     def total_minutes(self):
-        delta = (self.end_time - self.start_time)
-        return delta.seconds // 60
+        return self.time_delta.seconds // 60
+
+    @property
+    def time_delta(self):
+        return (self.end_time - self.start_time)
 
 
 class PricePolicy(models.Model):
