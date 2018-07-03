@@ -51,6 +51,8 @@ def post_record_call(request):
     else:
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 @api_view(['GET'])
-def get_bill(number):
-    pass
+def get_bill(request, number, month=None, year=None):
+
+    return Response(status= status.HTTP_200_OK)
