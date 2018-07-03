@@ -5,7 +5,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from restcalls.core.models import CallRecord, PricePolicy
-from restcalls.core.serializers import CallRecordSerializer
+from restcalls.core.serializers import CallRecordSerializer, BillSerializer
 
 
 @api_view(['POST'])
@@ -55,4 +55,20 @@ def post_record_call(request):
 @api_view(['GET'])
 def get_bill(request, number, month=None, year=None):
 
-    return Response(status= status.HTTP_200_OK)
+    query = CallRecord.objects.filter(source_number=number)
+    if not _month_and_year_is_valid(month, year):
+        return Response("Month nad year shuld be both blank or both filled", status=status.HTTP_400_BAD_REQUEST)
+    if month and year:
+        query = query.filter(start_time__month=month, start_time__year=year)
+    else:
+        result = CallRecord.objects.values('start_time').latest(field_name='start_time')
+        if result:
+            last_date = result['start_time']
+        query = query.filter(start_time__month=last_date.month, start_time__year=last_date.year)
+
+    serializer = BillSerializer(query.all(), many=True)
+    return Response(serializer.data)
+
+
+def _month_and_year_is_valid(month, year):
+    return bool(month) == bool(year)

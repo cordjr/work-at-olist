@@ -138,8 +138,23 @@ class BillViewTest(APITestCase):
     def test_should_return_for_6_records_mont_12_and_year_2017(self):
         self.load_data()
         path = reverse('get_bill', kwargs={'number': 99988526423, 'month': 12, 'year': 2017})
-        print(path)
 
         response = self.client.get(path)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        # self.assertTrue(len(response.josn()) == 6)
+        self.assertEqual(len(response.json()), 6)
+
+    def test_should_return_1_record(self):
+        self.load_data()
+        path = reverse('get_bill', kwargs={'number': 99988526423})
+
+        response = self.client.get(path)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.json()), 1)
+
+    def test_should_return_bad_reques_when_passing_none_parameters_for_month_or_for_year(self):
+        self.load_data()
+        path = reverse('get_bill', kwargs={'number': 99988526423})
+        path += "/20-"
+        print(path)
+        response = self.client.get(path)
+        self.assertEqual(response.status_code, status.HTTP_301_MOVED_PERMANENTLY)
