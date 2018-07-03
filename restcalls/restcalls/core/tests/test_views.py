@@ -151,10 +151,10 @@ class BillViewTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.json()), 1)
 
-    def test_should_return_bad_reques_when_passing_none_parameters_for_month_or_for_year(self):
+    def test_should_return_404_error_when_passing_incomplete_path(self):
         self.load_data()
         path = reverse('get_bill', kwargs={'number': 99988526423})
-        path += "/20-"
-        print(path)
+        path += "20-"
         response = self.client.get(path)
-        self.assertEqual(response.status_code, status.HTTP_301_MOVED_PERMANENTLY)
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

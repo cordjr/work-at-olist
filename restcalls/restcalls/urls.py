@@ -17,5 +17,5 @@ from django.conf.urls import url, include
 
 urlpatterns = [
     #path('admin/', admin.site.urls),
-    url('^', include('restcalls.core.urls'))
+    url('^api/v1/', include('restcalls.core.urls'))
 ]
