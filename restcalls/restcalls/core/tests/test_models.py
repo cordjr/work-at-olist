@@ -48,7 +48,6 @@ class CallRecordTest(TestCase):
             record.clean_fields()
         except Exception as ex:
             self.assertIn("call_id", str(ex))
-
             return
         self.fail("An exception shuld be thrown")
 
