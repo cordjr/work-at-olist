@@ -15,7 +15,25 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+from rest_framework import permissions
+
+schema_view = get_schema_view(
+   openapi.Info(
+      title="RestCalls API",
+      default_version='v1',
+      description="",
+      terms_of_service="https://www.google.com/policies/terms/",
+      contact=openapi.Contact(email="cordjr@gmail.com"),
+      license=openapi.License(name="BSD License"),
+   ),
+   public=True,
+   permission_classes=(permissions.AllowAny,),
+)
+
 urlpatterns = [
     #path('admin/', admin.site.urls),
-    url('^api/v1/', include('restcalls.core.urls'))
+    url('^api/v1/', include('restcalls.core.urls')),
+    url(r'^docs/$', schema_view.with_ui('redoc', cache_timeout=None), name='schema-swagger-ui'),
 ]

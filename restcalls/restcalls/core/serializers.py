@@ -5,14 +5,15 @@ from restcalls.core.models import CallRecord
 
 class CallRecordSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
-    call_id = serializers.IntegerField()
-    source = serializers.IntegerField(required=False)
-    destination = serializers.IntegerField(required=False)
+    call_id = serializers.IntegerField(help_text=' Call identification')
+    source = serializers.IntegerField(required=False, help_text='number thet start a call. required only if type is start')
+    destination = serializers.IntegerField(required=False, help_text='number that receive a call.  required only if type is start')
     timestamp = serializers.DateTimeField(required=True)
-    type = serializers.CharField(required=True)
+    type = serializers.ChoiceField(choices=('end', 'start'), required=True)
 
     def validate(self, data):
         errors = {}
+
         if data['type'] == 'start':
             if 'source' not in data:
                 errors['source'] = 'source should be present in start call record'
@@ -34,20 +35,22 @@ class CallRecordSerializer(serializers.Serializer):
 
 
 class BillSerializer(serializers.ModelSerializer):
-    destination = serializers.SerializerMethodField()
-    call_start_date = serializers.SerializerMethodField()
-    call_start_time = serializers.SerializerMethodField()
-    call_duration = serializers.SerializerMethodField()
-    call_price = serializers.SerializerMethodField()
+    class Meta:
+        model = CallRecord
+        fields = ('destination', 'call_start_date', 'call_start_time', 'call_duration', 'call_price')
+
+    destination = serializers.IntegerField(source="destination_number")
+    call_start_date = serializers.SerializerMethodField(help_text="start date in format 'dd/MM/YYYY'")
+    call_start_time = serializers.SerializerMethodField(help_text=" start time in format 'HH:MM'")
+    call_duration = serializers.SerializerMethodField(
+        help_text="call duration (hour, minute and seconds): e.g. 0h35m42s")
+    call_price = serializers.DecimalField(decimal_places=2, max_digits=20)
 
     def get_call_start_date(self, obj):
         return obj.start_time.date()
 
     def get_call_start_time(self, obj):
         return obj.start_time.time()
-
-    def get_destination(self, obj):
-        return obj.destination_number
 
     def get_call_duration(self, obj):
 
@@ -68,10 +71,3 @@ class BillSerializer(serializers.ModelSerializer):
             else:
                 strings.append("{}{}".format(0, period_name))
         return "".join(strings)
-
-    def get_call_price(self, obj):
-        return obj.call_price
-
-    class Meta:
-        model = CallRecord
-        fields = ('call_start_time', 'call_start_date', 'destination', 'call_duration', 'call_price')

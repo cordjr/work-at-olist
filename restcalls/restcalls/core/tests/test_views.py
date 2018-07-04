@@ -1,6 +1,4 @@
 import json
-from datetime import datetime
-from decimal import Decimal
 
 from django.urls import reverse
 from rest_framework import status
@@ -107,36 +105,7 @@ class BillViewTest(APITestCase):
     def tearDown(self):
         self.client.logout()
 
-    def load_data(self):
-        call_list = [
-            CallRecord(call_id=70, start_time=datetime.strptime("2016-02-29T12:00:00Z", "%Y-%m-%dT%H:%M:%SZ"),
-                       end_time=datetime.strptime("2016-02-29T14:00:00Z", "%Y-%m-%dT%H:%M:%SZ"),
-                       source_number=99988526423, destination_number=99988526423, call_price=Decimal('0.23')),
-            CallRecord(call_id=71, start_time=datetime.strptime("2017-12-12T15:07:13Z", "%Y-%m-%dT%H:%M:%SZ"),
-                       end_time=datetime.strptime("2017-12-12T15:14:56Z", "%Y-%m-%dT%H:%M:%SZ"),
-                       source_number=99988526423, destination_number=99988526423, call_price=Decimal('0.23')),
-            CallRecord(call_id=72, start_time=datetime.strptime("2017-12-12T22:47:56Z", "%Y-%m-%dT%H:%M:%SZ"),
-                       end_time=datetime.strptime("2017-12-12T22:50:56Z", "%Y-%m-%dT%H:%M:%SZ"),
-                       source_number=99988526423, destination_number=99988526423, call_price=Decimal('0.23')),
-            CallRecord(call_id=73, start_time=datetime.strptime("2017-12-12T21:57:13Z", "%Y-%m-%dT%H:%M:%SZ"),
-                       end_time=datetime.strptime("2017-12-12T22:10:56Z", "%Y-%m-%dT%H:%M:%SZ"),
-                       source_number=99988526423, destination_number=99988526423, call_price=Decimal('0.23')),
-            CallRecord(call_id=74, start_time=datetime.strptime("2017-12-12T04:57:13Z", "%Y-%m-%dT%H:%M:%SZ"),
-                       end_time=datetime.strptime("2017-12-12T06:10:56Z", "%Y-%m-%dT%H:%M:%SZ"),
-                       source_number=99988526423, destination_number=99988526423, call_price=Decimal('0.23')),
-            CallRecord(call_id=75, start_time=datetime.strptime("2017-12-12T21:57:13Z", "%Y-%m-%dT%H:%M:%SZ"),
-                       end_time=datetime.strptime("2017-12-13T22:10:56Z", "%Y-%m-%dT%H:%M:%SZ"),
-                       source_number=99988526423, destination_number=99988526423, call_price=Decimal('0.23')),
-            CallRecord(call_id=76, start_time=datetime.strptime("2017-12-12T15:07:58Z", "%Y-%m-%dT%H:%M:%SZ"),
-                       end_time=datetime.strptime("2017-12-12T15:12:56Z", "%Y-%m-%dT%H:%M:%SZ"),
-                       source_number=99988526423, destination_number=99988526423, call_price=Decimal('0.23')),
-            CallRecord(call_id=77, start_time=datetime.strptime("2018-02-28T21:57:13Z", "%Y-%m-%dT%H:%M:%SZ"),
-                       end_time=datetime.strptime("2018-03-01T22:10:56Z", "%Y-%m-%dT%H:%M:%SZ"),
-                       source_number=99988526423, destination_number=99988526423, call_price=Decimal('0.23'))]
-        CallRecord.objects.bulk_create(call_list)
-
     def test_should_return_for_6_records_mont_12_and_year_2017(self):
-        self.load_data()
         path = reverse('get_bill', kwargs={'number': 99988526423, 'month': 12, 'year': 2017})
 
         response = self.client.get(path)
@@ -144,7 +113,6 @@ class BillViewTest(APITestCase):
         self.assertEqual(len(response.json()), 6)
 
     def test_should_return_1_record(self):
-        self.load_data()
         path = reverse('get_bill', kwargs={'number': 99988526423})
 
         response = self.client.get(path)
@@ -152,7 +120,6 @@ class BillViewTest(APITestCase):
         self.assertEqual(len(response.json()), 1)
 
     def test_should_return_404_error_when_passing_incomplete_path(self):
-        self.load_data()
         path = reverse('get_bill', kwargs={'number': 99988526423})
         path += "20-"
         response = self.client.get(path)

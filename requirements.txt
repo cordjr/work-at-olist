@@ -1,7 +1,0 @@
-Django==2.0
-django-filter==1.1.0
-djangorestframework==3.8.2
-Markdown==2.6.11
-psycopg2-binary==2.7.5
-pytz==2018.4
-coreapi==2.3.3

@@ -1,5 +1,5 @@
 # Create your views here.
-
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -8,8 +8,18 @@ from restcalls.core.models import CallRecord, PricePolicy
 from restcalls.core.serializers import CallRecordSerializer, BillSerializer
 
 
+@swagger_auto_schema(method='post',
+                     operation_id='post call',
+                     operation_description="Create or fill call records according to type",
+                     request_body=CallRecordSerializer,
+                     responses={200: '', 400: ''})
 @api_view(['POST'])
 def post_record_call(request):
+    '''
+    post:
+      ##create or fill a record call
+
+    '''
     serializer = CallRecordSerializer(data=request.data)
 
     if serializer.is_valid():
@@ -52,9 +62,15 @@ def post_record_call(request):
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@swagger_auto_schema(method='get',
+                     operation_id='get_bill',
+                     operation_description="Retrieve bills according to month and year parameters",
+
+
+                     responses={200: BillSerializer, 400: ''},
+                     )
 @api_view(['GET'])
 def get_bill(request, number, month=None, year=None):
-
     query = CallRecord.objects.filter(source_number=number)
     if not _month_and_year_is_valid(month, year):
         return Response("Month nad year shuld be both blank or both filled", status=status.HTTP_400_BAD_REQUEST)
