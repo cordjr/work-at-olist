@@ -14,26 +14,27 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.conf.urls import url, include
-
-from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
+from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 
 schema_view = get_schema_view(
-   openapi.Info(
-      title="RestCalls API",
-      default_version='v1',
-      description="",
-      terms_of_service="https://www.google.com/policies/terms/",
-      contact=openapi.Contact(email="cordjr@gmail.com"),
-      license=openapi.License(name="BSD License"),
-   ),
-   public=True,
-   permission_classes=(permissions.AllowAny,),
+    openapi.Info(
+        title="RestCalls API",
+        default_version='v1',
+        description="",
+        terms_of_service="https://www.google.com/policies/terms/",
+        contact=openapi.Contact(email="cordjr@gmail.com"),
+        license=openapi.License(name="BSD License"),
+    ),
+    public=True,
+    permission_classes=(permissions.AllowAny,),
 )
 
+doc_view = schema_view.with_ui('redoc', cache_timeout=None)
 urlpatterns = [
-    #path('admin/', admin.site.urls),
+    # path('admin/', admin.site.urls),
     url('^api/v1/', include('restcalls.core.urls')),
-    url(r'^docs/$', schema_view.with_ui('redoc', cache_timeout=None), name='schema-swagger-ui'),
+    url(r'^docs/$', doc_view, name='schema-swagger-ui'),
+    url(r'^$', doc_view),
 ]
