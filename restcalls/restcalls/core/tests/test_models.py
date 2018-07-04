@@ -46,8 +46,8 @@ class CallRecordTest(TestCase):
         try:
             record = self.create_a_record_call_without_call_id()
             record.clean_fields()
-        except ValidationError as ex:
-            self.assertIn("call_id", ex.error_dict)
+        except Exception as ex:
+            self.assertIn("call_id", str(ex))
 
             return
         self.fail("An exception shuld be thrown")

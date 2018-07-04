@@ -20,6 +20,8 @@ class CallRecord(models.Model):
             raise ValidationError({'start_time': "Start time must not be after end_time",
                                    'end_time': 'End time must not be before start time'})
 
+
+
     @property
     def total_minutes(self):
         return self.time_delta.seconds // 60

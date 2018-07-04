@@ -15,9 +15,9 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='CallRecord',
             fields=[
-                ('call_id', models.IntegerField(primary_key=True, serialize=False)),
-                ('source_number', models.IntegerField(db_index=True, null=True)),
-                ('destination_number', models.IntegerField(null=True)),
+                ('call_id', models.BigIntegerField(primary_key=True, serialize=False)),
+                ('source_number', models.BigIntegerField(db_index=True, null=True)),
+                ('destination_number', models.BigIntegerField(null=True)),
                 ('start_time', models.DateTimeField(null=True)),
                 ('end_time', models.DateTimeField(null=True)),
                 ('call_price', models.DecimalField(decimal_places=2, max_digits=20, null=True)),
