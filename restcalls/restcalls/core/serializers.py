@@ -1,13 +1,15 @@
 from rest_framework import serializers
 
-from restcalls.core.models import CallRecord
+from restcalls.core.models import CallRecord, PricePolicy, PriceRule
 
 
 class CallRecordSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
     call_id = serializers.IntegerField(help_text=' Call identification')
-    source = serializers.IntegerField(required=False, help_text='number thet start a call. required only if type is start')
-    destination = serializers.IntegerField(required=False, help_text='number that receive a call.  required only if type is start')
+    source = serializers.IntegerField(required=False,
+                                      help_text='number thet start a call. required only if type is start')
+    destination = serializers.IntegerField(required=False,
+                                           help_text='number that receive a call.  required only if type is start')
     timestamp = serializers.DateTimeField(required=True)
     type = serializers.ChoiceField(choices=('end', 'start'), required=True)
 
@@ -71,3 +73,24 @@ class BillSerializer(serializers.ModelSerializer):
             else:
                 strings.append("{}{}".format(0, period_name))
         return "".join(strings)
+
+
+class PriceRuleSerilizer(serializers.ModelSerializer)
+
+    def create(self, validated_data):
+        rules = validated_data.pop('rules')
+        policy = PricePolicy.objects.create(**validated_data)
+        for rule in rules:
+            price_rule = PriceRule.objects.create(**rule)
+            price_rule.policy = policy
+
+    def update(self, instance, validated_data):
+        rules = validated_data.pop('rules')
+        policy = PricePolicy.objects.filter(id=validated_data['id']).first()
+        for rule_dict in rules:
+            price_rule = PriceRule(**rule_dict)
+            price_rule.save()
+
+    class Meta:
+        model: PricePolicy
+        fields: ('start', 'end', 'standing_rate', 'rules')
