@@ -75,7 +75,18 @@ class BillSerializer(serializers.ModelSerializer):
         return "".join(strings)
 
 
-class PriceRuleSerilizer(serializers.ModelSerializer)
+class PriceRuleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PriceRule
+        fields = ('start_time', 'end_time', 'value', 'type')
+
+
+class PricePolicySerilizer(serializers.ModelSerializer):
+    rules = PriceRuleSerializer(many=True)
+
+    class Meta:
+        model = PricePolicy
+        fields = ('start', 'end', 'standing_rate', 'rules')
 
     def create(self, validated_data):
         rules = validated_data.pop('rules')
@@ -90,7 +101,3 @@ class PriceRuleSerilizer(serializers.ModelSerializer)
         for rule_dict in rules:
             price_rule = PriceRule(**rule_dict)
             price_rule.save()
-
-    class Meta:
-        model: PricePolicy
-        fields: ('start', 'end', 'standing_rate', 'rules')

@@ -4,7 +4,7 @@ from decimal import Decimal
 from django.test import TestCase
 
 from restcalls.core.models import CallRecord
-from restcalls.core.serializers import CallRecordSerializer, BillSerializer
+from restcalls.core.serializers import CallRecordSerializer, BillSerializer, PricePolicySerilizer
 from restcalls.core.tests.payloads import *
 
 
@@ -69,3 +69,10 @@ class BillSerializerTest(TestCase):
             self.assertIn(key, data.keys())
 
         self.assertRegex(data['call_duration'], r'\d+h\d+m\d+s', "call duration should be like '0h2m1s'")
+
+
+class PricePolicySerializerTest(TestCase):
+
+    def test_should_serialize_to_price_policy_when_payload_is_valid(self):
+        serializer = PricePolicySerilizer(data=VALID_PRICE_POLICY_PAYLOAD)
+        self.assertTrue(serializer.is_valid(raise_exception=True))
