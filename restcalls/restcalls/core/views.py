@@ -2,10 +2,11 @@
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.decorators import api_view
+from rest_framework.generics import ListCreateAPIView
 from rest_framework.response import Response
 
 from restcalls.core.models import CallRecord, PricePolicy
-from restcalls.core.serializers import CallRecordSerializer, BillSerializer
+from restcalls.core.serializers import CallRecordSerializer, BillSerializer, PricePolicySerilizer
 
 
 @swagger_auto_schema(method='post',
@@ -88,3 +89,13 @@ def get_bill(request, number, month=None, year=None):
 
 def _month_and_year_is_valid(month, year):
     return bool(month) == bool(year)
+
+
+
+class PricePolicyView(ListCreateAPIView):
+
+    queryset = PricePolicy.objects.all()
+    serializer_class = PricePolicySerilizer
+
+
+
