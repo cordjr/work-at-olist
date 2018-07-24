@@ -82,11 +82,24 @@ class PriceRuleSerializer(serializers.ModelSerializer):
 
 
 class PricePolicySerilizer(serializers.ModelSerializer):
-    rules = PriceRuleSerializer(many=True)
+    rules = PriceRuleSerializer(many=True, required=True)
 
     class Meta:
         model = PricePolicy
-        fields = ('start', 'end', 'standing_rate', 'rules')
+        fields = ('id', 'start', 'end', 'standing_rate', 'rules')
+
+    def validate(self, data):
+
+        errors = {}
+
+        if len(data['rules']) > 2:
+            errors['rules'] = 'max number of rules allowed is 2'
+
+        if errors:
+            raise serializers.ValidationError(
+                errors)
+
+        return data
 
     def create(self, validated_data):
         rules = validated_data.pop('rules')

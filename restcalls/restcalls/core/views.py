@@ -2,7 +2,7 @@
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.decorators import api_view
-from rest_framework.generics import ListCreateAPIView
+from rest_framework.generics import ListCreateAPIView, UpdateAPIView
 from rest_framework.response import Response
 
 from restcalls.core.models import CallRecord, PricePolicy
@@ -67,7 +67,6 @@ def post_record_call(request):
                      operation_id='get_bill',
                      operation_description="Retrieve bills according to month and year parameters",
 
-
                      responses={200: BillSerializer, 400: ''},
                      )
 @api_view(['GET'])
@@ -91,11 +90,6 @@ def _month_and_year_is_valid(month, year):
     return bool(month) == bool(year)
 
 
-
-class PricePolicyView(ListCreateAPIView):
-
-    queryset = PricePolicy.objects.all()
+class PricePolicyView(ListCreateAPIView, UpdateAPIView):
+    queryset = PricePolicy.objects.last()
     serializer_class = PricePolicySerilizer
-
-
-
